@@ -17,7 +17,7 @@
 
 typedef struct {
 	short id;
-	char lexeme[255];
+	char *lexeme;
 	int line;
 	int col;
 } ebnf_token_t;

@@ -5,20 +5,20 @@
 
 #define ERROR_OPENING_FILE 1
 
-#define OPT_CALL OPTIONS_T opt
+#define OPT_CALL options_t opt
 
 #define INCP(pointer) *pointer = *pointer + 1;
 
 typedef struct {
-	char* ebnf_file;
+	char *ebnf_file;
 	short h;
 	short v;
 	short d;
-} OPTIONS_T;
+} options_t;
 
 typedef long long filepos_t;
 
-OPTIONS_T parse_args(int argc,char* argv[]);
+options_t parse_args(int argc,char *argv[]);
 void print_options(OPT_CALL);
 void print_usage(void);
 void print_version(void);
