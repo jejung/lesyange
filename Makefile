@@ -1,6 +1,6 @@
 WARNINGS :=	-Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 		-Wwrite-strings -Wredundant-decls -Wnested-externs -Winline \
-	       	-Wno-long-long -Wuninitialized -Wconversion
+					-Wno-long-long -Wuninitialized -Wconversion
 CC=gcc
 CFLAGS=-c -std=c11
 LDFLAGS=

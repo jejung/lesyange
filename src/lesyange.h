@@ -2,10 +2,21 @@
 #define LESYANGE_H
 
 #define VERSION "0.1"
+
 #define ERROR_OPENING_FILE 1
+#define ERROR_UNEXPECTED_EOF 2
+#define ERROR_UNTERMINATED_COMMENT 3
+#define ERROR_UNTERMINATED_LITERAL 4
+
 #define OPT_CALL options_t opt
-#define INCP(pointer) *pointer = *pointer + 1;
+#define INCP(pointer) (*pointer = (*pointer + 1));
 #define MACRO_NAME(macro) #macro
+
+#define UNEXPECTED_ERROR(macrocode, ...) \
+    do { printf("Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
+        printf(__VA_ARGS__); \
+       exit(macrocode); \
+    } while(0); 
 
 typedef struct {
 	char *ebnf_file;
