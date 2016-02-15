@@ -22,7 +22,11 @@
 *.a
 *.lib
 
+# Dependency files
+*.d
+
 # Executables
 *.exe
 *.out
 *.app
+lesyange
