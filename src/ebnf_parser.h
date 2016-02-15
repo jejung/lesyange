@@ -14,10 +14,11 @@
 #define NONTERMINAL 5
 #define RULE 6
 #define IDENTIFIER 7
+#define COLON 8
 
 typedef struct {
 	short id;
-	char *lexeme;
+	const char *lexeme;
 	int line;
 	int col;
 } ebnf_token_t;

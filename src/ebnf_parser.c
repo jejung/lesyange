@@ -14,14 +14,14 @@ ebnf_token_t next_identifier(FILE *fp, int *line, int *col, char first)
 	tk.line = *line;
 	tk.col = *col;
     tk.lexeme = malloc(sizeof(char) * 2);
-    sprintf(tk.lexeme, "%c", first);
+    sprintf((char*)tk.lexeme, "%c", first);
 	while (!feof(fp)) 
     {
 		int c = fgetc(fp);
 		if (isalpha(c) || isdigit(c) || c == '_')
         {
-            char *old = tk.lexeme;
-			tk.lexeme = sputc(old, (char)c); 
+            char *old = (char*)tk.lexeme;
+            tk.lexeme = sputc(old, (char)c); 
             free(old);
 			INCP(col);
 		} else 
@@ -58,16 +58,29 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
 		} else if (c == '=') 
         {
 			tk.id = DERIVES;
-            tk.lexeme = malloc(sizeof(char) * 2);
-            sprintf(tk.lexeme, "%c", '=');
+            tk.lexeme = "=";
 			tk.line = *line;
 			tk.col = *col;
 			return tk;
-		} else 
+		} else if (c == ',') 
+        {
+            tk.id = COLON;
+            tk.lexeme = ",";
+            tk.line = *line;
+			tk.col = *col;
+            return tk;
+        }  else if (c == ';')
+        {
+            tk.id = SEMICOLON;
+            tk.lexeme = ";";
+            tk.line = *line;
+			tk.col = *col;
+            return tk;
+        } else 
         {
 			tk.id = UNKNOWN;
 			tk.lexeme = malloc(sizeof(char) * 2);
-            sprintf(tk.lexeme, "%c", c);
+            sprintf((char*)tk.lexeme, "%c", c);
 			tk.line = *line;
 			tk.col = *col;
 			return tk;
@@ -77,8 +90,7 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
         if (feof(fp)) 
         {
             tk.id = DOLLAR;
-            tk.lexeme = malloc(sizeof(char) * 2);
-            sprintf(tk.lexeme, "%c", '$');
+            tk.lexeme = "$";
             tk.line = *line;
             tk.col = *col;
             return tk;
@@ -124,6 +136,7 @@ void print_token(ebnf_token_t tk)
         case 5: class = "NONTERMINAL"; break;
         case 6: class = "RULE"; break;
         case 7: class = "IDENTIFIER"; break;
+        case 8: class = "COLON"; break;
         default: break;
 	}
 	printf("%s(%s) at line %d, col %d\n", class, tk.lexeme, tk.line, tk.col);
