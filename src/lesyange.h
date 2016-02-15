@@ -2,12 +2,10 @@
 #define LESYANGE_H
 
 #define VERSION "0.1"
-
 #define ERROR_OPENING_FILE 1
-
 #define OPT_CALL options_t opt
-
 #define INCP(pointer) *pointer = *pointer + 1;
+#define MACRO_NAME(macro) #macro
 
 typedef struct {
 	char *ebnf_file;

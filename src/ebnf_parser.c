@@ -10,17 +10,17 @@
 ebnf_token_t next_identifier(FILE *fp, int *line, int *col, char first) 
 {
 	ebnf_token_t tk;
-	tk.id = IDENTIFIER;
+    TK_SETID(tk, IDENTIFIER);
 	tk.line = *line;
 	tk.col = *col;
     tk.lexeme = malloc(sizeof(char) * 2);
-    sprintf((char*)tk.lexeme, "%c", first);
+    sprintf(tk.lexeme, "%c", first);
 	while (!feof(fp)) 
     {
 		int c = fgetc(fp);
 		if (isalpha(c) || isdigit(c) || c == '_')
         {
-            char *old = (char*)tk.lexeme;
+            char *old = tk.lexeme;
             tk.lexeme = sputc(old, (char)c); 
             free(old);
 			INCP(col);
@@ -36,7 +36,7 @@ ebnf_token_t next_identifier(FILE *fp, int *line, int *col, char first)
 ebnf_token_t next_token(FILE *fp, int *line, int *col) 
 {
 	ebnf_token_t tk;
-	tk.id = UNKNOWN;
+    TK_SETID(tk, UNKNOWN);
 	tk.line = *line;
 	tk.col = *col;
 	
@@ -57,30 +57,33 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
 			*col = 0;
 		} else if (c == '=') 
         {
-			tk.id = DERIVES;
-            tk.lexeme = "=";
+            TK_SETID(tk, DERIVES);
+            tk.lexeme = malloc(sizeof(char) * 2);
+            sprintf(tk.lexeme, "%c", '=');
 			tk.line = *line;
 			tk.col = *col;
 			return tk;
 		} else if (c == ',') 
         {
-            tk.id = COLON;
-            tk.lexeme = ",";
+            TK_SETID(tk, COLON);
+            tk.lexeme = malloc(sizeof(char) * 2);
+            sprintf(tk.lexeme, "%c", ',');
             tk.line = *line;
 			tk.col = *col;
             return tk;
         }  else if (c == ';')
         {
-            tk.id = SEMICOLON;
-            tk.lexeme = ";";
+            TK_SETID(tk, SEMICOLON);
+            tk.lexeme = malloc(sizeof(char) * 2);
+            sprintf(tk.lexeme, "%c", ';');
             tk.line = *line;
 			tk.col = *col;
             return tk;
         } else 
         {
-			tk.id = UNKNOWN;
+            TK_SETID(tk, UNKNOWN);
 			tk.lexeme = malloc(sizeof(char) * 2);
-            sprintf((char*)tk.lexeme, "%c", c);
+            sprintf(tk.lexeme, "%c", c);
 			tk.line = *line;
 			tk.col = *col;
 			return tk;
@@ -89,8 +92,9 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
 		INCP(col);
         if (feof(fp)) 
         {
-            tk.id = DOLLAR;
-            tk.lexeme = "$";
+            TK_SETID(tk, DOLLAR);
+            tk.lexeme = malloc(sizeof(char) * 2);
+            sprintf(tk.lexeme, "%c", '$');
             tk.line = *line;
             tk.col = *col;
             return tk;
@@ -117,27 +121,13 @@ void parse_ebnf(OPT_CALL)
 		fclose(fp);
 	} else 
     {
-		printf("Unable to open file: %s\n", opt.ebnf_file);
+		printf("%s: Unable to open file: %s\n", MACRO_NAME(ERROR_OPENING_FILE), opt.ebnf_file);
 		fclose(fp);
-		exit(1);
+		exit(ERROR_OPENING_FILE);
 	}	
 }
 
 void print_token(ebnf_token_t tk) 
 {
-	const char *class = "UNKNOWN";
-	switch (tk.id) 
-    {
-        case 0: class = "EPISOLON"; break;
-        case 1: class = "DOLLAR"; break;
-        case 2: class = "SEMICOLON"; break;
-        case 3: class = "DERIVES"; break;
-        case 4: class = "TERMINAL"; break;
-        case 5: class = "NONTERMINAL"; break;
-        case 6: class = "RULE"; break;
-        case 7: class = "IDENTIFIER"; break;
-        case 8: class = "COLON"; break;
-        default: break;
-	}
-	printf("%s(%s) at line %d, col %d\n", class, tk.lexeme, tk.line, tk.col);
+	printf("%s(%s) at line %d, col %d\n", tk.class, tk.lexeme, tk.line, tk.col);
 }

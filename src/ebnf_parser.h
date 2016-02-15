@@ -16,9 +16,12 @@
 #define IDENTIFIER 7
 #define COLON 8
 
+#define TK_SETID(tk, value) do {tk.id = value; tk.class = #value;} while(0);
+
 typedef struct {
 	short id;
-	const char *lexeme;
+    const char* class;
+	char *lexeme;
 	int line;
 	int col;
 } ebnf_token_t;
