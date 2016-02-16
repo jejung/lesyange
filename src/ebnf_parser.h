@@ -3,7 +3,7 @@
 
 #include "lesyange.h"
 
-#define UNKNOWN -1 // ~?~
+#define UNKNOWN -1 // ?
 
 #define EPISOLON 0 // ÿ
 #define DOLLAR 1 // $
@@ -23,10 +23,11 @@
 #define TERMINAL_SQ 14 // '
 #define OPEN_COMMENT 15 // (*
 #define CLOSE_COMMENT 16 // *)
-#define SPECIAL_SEQ 17 // ?
-#define EXCEPTION 18 // -
-#define TERMINATION_DOT 19 // .
-#define TK_EOF 20 // EOF
+#define OPEN_SPECIAL_SEQ 17 // <
+#define CLOSE_SPECIAL_SEQ 18 // >
+#define EXCEPTION 19 // -
+#define TERMINATION_DOT 20 // .
+#define TK_EOF 21 // EOF
 
 #define TK_SETID(tk, value) do {tk.id = value; tk.class = #value;} while(0);
 #define TK_SETLEX(tk, c) do {tk.lexeme = malloc(sizeof(char) * 2); sprintf(tk.lexeme, "%c", c);} while(0);
@@ -41,6 +42,5 @@ typedef struct {
 
 
 void parse_ebnf(OPT_CALL);
-void print_token(ebnf_token_t tk);
 
 #endif

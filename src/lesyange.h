@@ -12,11 +12,14 @@
 #define INCP(pointer) (*pointer = (*pointer + 1));
 #define MACRO_NAME(macro) #macro
 
-#define UNEXPECTED_ERROR(macrocode, ...) \
-    do { printf("Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
+#define UNEXPECTED_ERROR(fp, macrocode, ...) \
+    do { fclose(fp); \
+        printf("Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
         printf(__VA_ARGS__); \
        exit(macrocode); \
     } while(0); 
+
+#define DEBUG_LOG(opt, ...) if (opt.d){do{printf(__VA_ARGS__); printf("\n");} while(0);}
 
 typedef struct {
 	char *ebnf_file;
