@@ -30,6 +30,7 @@ ebnf_token_t next_identifier(FILE *fp, int *col, ebnf_token_t tk)
 
 ebnf_token_t next_comment(FILE *fp, int *line, int *col, ebnf_token_t tk) 
 {
+    TK_SETID(tk, COMMENT);
     int last = 0;
     while (!feof(fp)) 
     {
@@ -176,9 +177,9 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
         tk.col = INCP(col);
         if (feof(fp)) 
         {
-            TK_SETID(tk, TK_EOF);
-            tk.lexeme = malloc(sizeof(char) * 4);
-            strcpy(tk.lexeme, "EOF");
+            TK_SETID(tk, DOLLAR);
+            tk.lexeme = malloc(sizeof(char) * 2);
+            strcpy(tk.lexeme, "$");
             return tk;
         }
     }
