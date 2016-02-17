@@ -98,7 +98,8 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
 {
     ebnf_token_t tk;
     TK_SETID(tk, UNKNOWN);
-    int c = fgetc(fp); 
+    int c = fgetc(fp);
+    tk.lexeme = NULL; 
     TK_SETLEX(tk, c);
     tk.line = *line;
     tk.col = *col;
@@ -155,10 +156,15 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
             TK_SETID(tk, TERMINAL_SQ);
             return next_terminal(fp, line, col, '\'', tk);
         } else if (c == '<') {
-            TK_SETID(tk, OPEN_SPECIAL_SEQ);
-            return tk;
-        } else if (c == '>') {
-            TK_SETID(tk, CLOSE_SPECIAL_SEQ);
+            tk = next_identifier(fp, col, tk);
+            c = fgetc(fp);
+            INCP(col);
+            if (c != '>')
+                UNEXPECTED_ERROR(fp, UNEXPECTED_CHAR, 
+                  "Expecting '<' but found '%c' at line %d, col %d", c, *line, *col);
+            char* old = tk.lexeme;
+            tk.lexeme = sputc(old, (char)c);
+            free(old);
             return tk;
         } else if (c == '-') {
             TK_SETID(tk, EXCEPTION);
@@ -186,17 +192,22 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
   return tk;
 }
 
-
 void parse_ebnf(OPT_CALL) 
 {
     FILE* fp = fopen(opt.ebnf_file, "r+");
     int line = 1, col = 1;
     if (fp != NULL) 
     {
+        ilstack_t *stack = malloc(sizeof(ilstack_t));
+        ilstack_init(stack);
+        ilstack_push(stack, DOLLAR);
+        ilstack_push(stack, START);
         while (!feof(fp)) 
         {
             ebnf_token_t tk = next_token(fp, &line, &col);
             DEBUG_LOG(opt, "%s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
+            int top = ilstack_top(stack);  
+
         }     
         fclose(fp);
     } else 

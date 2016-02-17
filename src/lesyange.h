@@ -7,6 +7,7 @@
 #define ERROR_UNEXPECTED_EOF 2
 #define ERROR_UNTERMINATED_COMMENT 3
 #define ERROR_UNTERMINATED_LITERAL 4
+#define UNEXPECTED_CHAR 5
 
 #define OPT_CALL options_t opt
 #define INCP(pointer) (*pointer = (*pointer + 1));
