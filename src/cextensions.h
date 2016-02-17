@@ -14,7 +14,9 @@ void ilstack_push(ilstack_t *stack, int value);
 int ilstack_pop(ilstack_t *stack);
 int ilstack_top(ilstack_t *stack);
 void ilstack_init(ilstack_t *stack);
+char *ilstack_toa(ilstack_t *stack);
 
 char *sputc(const char *input, const char c);
+char* itoa(int i, char b[]);
 
 #endif

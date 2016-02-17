@@ -7,7 +7,8 @@
 #define ERROR_UNEXPECTED_EOF 2
 #define ERROR_UNTERMINATED_COMMENT 3
 #define ERROR_UNTERMINATED_LITERAL 4
-#define UNEXPECTED_CHAR 5
+#define ERROR_UNEXPECTED_CHAR 5
+#define ERROR_UNEXPECTED_TOKEN 6
 
 #define OPT_CALL options_t opt
 #define INCP(pointer) (*pointer = (*pointer + 1));
@@ -28,8 +29,6 @@ typedef struct {
 	short v;
 	short d;
 } options_t;
-
-typedef long long filepos_t;
 
 options_t parse_args(int argc,char *argv[]);
 void print_options(OPT_CALL);

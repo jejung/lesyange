@@ -15,6 +15,27 @@ char *sputc(const char *input, const char c)
     return new;
 }
 
+char* itoa(int i, char b[])
+{
+    char const digit[] = "0123456789";
+    char* p = b;
+    if(i<0){
+        *p++ = '-';
+        i *= -1;
+    }
+    int shifter = i;
+    do{
+        ++p;
+        shifter = shifter/10;
+    }while(shifter);
+    *p = '\0';
+    do{ 
+        *--p = digit[i%10];
+        i = i/10;
+    }while(i);
+    return b;
+}
+
 void ilstack_init(ilstack_t *stack)
 {
     stack->top = NULL;
@@ -48,4 +69,28 @@ void ilstack_push(ilstack_t *stack, int value)
         newnode->next = top;
         stack->top = newnode;
     }   
+}
+
+char *ilstack_toa(ilstack_t *stack) 
+{
+    ilstack_node_t *node = stack->top;
+    char *str = malloc(sizeof(char));
+    str[0] = 0;
+    while (node != NULL)
+    {
+        char *old;
+        if (node != stack->top)
+        {
+            old = str;
+            str = sputc(old, ',');
+            free(old);
+        }
+        char value[15];
+        itoa(node->value, value);
+        old = str;
+        str = strcat(old, (const char*) value);
+        free(old);
+        node = node->next;
+    }
+    return str;
 }

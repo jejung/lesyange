@@ -160,7 +160,7 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
             c = fgetc(fp);
             INCP(col);
             if (c != '>')
-                UNEXPECTED_ERROR(fp, UNEXPECTED_CHAR, 
+                UNEXPECTED_ERROR(fp, ERROR_UNEXPECTED_CHAR, 
                   "Expecting '<' but found '%c' at line %d, col %d", c, *line, *col);
             char* old = tk.lexeme;
             tk.lexeme = sputc(old, (char)c);
@@ -184,8 +184,7 @@ ebnf_token_t next_token(FILE *fp, int *line, int *col)
         if (feof(fp)) 
         {
             TK_SETID(tk, DOLLAR);
-            tk.lexeme = malloc(sizeof(char) * 2);
-            strcpy(tk.lexeme, "$");
+            TK_SETLEX(tk, '$');
             return tk;
         }
     }
@@ -198,16 +197,49 @@ void parse_ebnf(OPT_CALL)
     int line = 1, col = 1;
     if (fp != NULL) 
     {
+        int *lltable[] = LL_TABLE;
+        int *productions[] = PRODUCTIONS;
         ilstack_t *stack = malloc(sizeof(ilstack_t));
         ilstack_init(stack);
         ilstack_push(stack, DOLLAR);
-        ilstack_push(stack, START);
-        while (!feof(fp)) 
+        ilstack_push(stack, NT_GRAMMAR);
+        while (stack->top != NULL)
         {
+            long int pos = ftell(fp);
             ebnf_token_t tk = next_token(fp, &line, &col);
-            DEBUG_LOG(opt, "%s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
-            int top = ilstack_top(stack);  
-
+            DEBUG_LOG(opt, "Lexer: %s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
+            int top = ilstack_pop(stack);
+            if (tk.id == top)
+            {
+                DEBUG_LOG(opt, "Syntatic: Reduce %s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
+            } else 
+            {
+                if (top < FIRST_NT)
+                {
+                    UNEXPECTED_ERROR(fp, ERROR_UNEXPECTED_TOKEN, 
+                        "Unexpected token %s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
+                }
+                int shift = lltable[top-FIRST_NT][tk.id];
+                if (shift == -1) 
+                {
+                    UNEXPECTED_ERROR(fp, ERROR_UNEXPECTED_TOKEN, 
+                        "Unexpected token %s(%s) at line %d, col %d", tk.class, tk.lexeme, tk.line, tk.col);
+                }
+                DEBUG_LOG(opt, "Syntatic: Shift %d -> %d at line %d, col %d", top, shift, tk.line, tk.col);
+                if (opt.d)
+                {
+                    char *stack_str = ilstack_toa(stack);
+                    DEBUG_LOG(opt, "Stack: %s", stack_str);
+                    free(stack_str);
+                }
+                int *prod = productions[shift];
+                while (*prod != UNKNOWN) 
+                {
+                    ilstack_push(stack, *prod);
+                    prod++;
+                }
+                fseek(fp,pos,SEEK_SET);
+            }
         }     
         fclose(fp);
     } else 
