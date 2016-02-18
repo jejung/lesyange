@@ -3,42 +3,52 @@
 
 #include "cextensions.h"
 
-char *sputc(const char *input, const char c)
+int sputc(char *input, const char c)
 {
-    char *new, *ptr;
-    
-    new = calloc((size_t)strlen(input) + 2, sizeof(char));
-    ptr = new;
-    for(; *input; input++) {*ptr = *input; ptr++;}
-    *ptr = c;
-    
-    return new;
+    int s = 0;
+    while(*input != '\0'){s++; input++;};
+    *input = c;
+    s++;
+    input++;
+    *input = '\0';
+    return s;
 }
 
-char* itoa(int i, char b[])
+int itoa(int i, char *b) 
 {
     char const digit[] = "0123456789";
-    char* p = b;
-    if(i<0){
-        *p++ = '-';
+    char *p = b;
+    int size = 0;
+    if (i < 0){
+        if (*p == '\0')
+            *p = '-';
+        else {
+            *p++ = '-';
+            size++;
+        }
         i *= -1;
     }
-    int shifter = i;
+
+    int control = i;
     do{
         ++p;
-        shifter = shifter/10;
-    }while(shifter);
+        size++;
+        control = control/10;
+    } while(control);
+
     *p = '\0';
     do{ 
         *--p = digit[i%10];
         i = i/10;
-    }while(i);
-    return b;
+    } while(i);
+
+    return size;
 }
 
 void ilstack_init(ilstack_t *stack)
 {
     stack->top = NULL;
+    stack->size = 0;
 }
 
 int ilstack_top(ilstack_t *stack)
@@ -52,6 +62,7 @@ int ilstack_pop(ilstack_t *stack)
     stack->top = top->next;
     int val = top->value;
     free(top);
+    stack->size--;
     return val;    
 }
 
@@ -69,28 +80,39 @@ void ilstack_push(ilstack_t *stack, int value)
         newnode->next = top;
         stack->top = newnode;
     }   
+    stack->size++;
 }
 
 char *ilstack_toa(ilstack_t *stack) 
 {
     ilstack_node_t *node = stack->top;
-    char *str = malloc(sizeof(char));
-    str[0] = 0;
+    // measure the size and keep tack of each item representation.
+    char *buffer[stack->size];
+    unsigned int total_len = 0;
+    int nc = 0;
     while (node != NULL)
     {
-        char *old;
-        if (node != stack->top)
+        char *value = malloc(sizeof(char) * 25);
+        *value = '\0';
+        total_len += (unsigned int) itoa(node->value, value);       
+        if (nc!=0) 
         {
-            old = str;
-            str = sputc(old, ',');
-            free(old);
+            total_len++;
         }
-        char value[15];
-        itoa(node->value, value);
-        old = str;
-        str = strcat(old, (const char*) value);
-        free(old);
+        buffer[nc] = (char*)value;
+        nc++;
         node = node->next;
     }
-    return str;
+    char *newstr = malloc(sizeof(char) * (long unsigned int)(total_len + 1));
+    int i;
+    for (i = 0; i < stack->size; i++)
+    {
+        strcat(newstr, buffer[i]);
+        if (i != nc-1)
+        {
+            sputc(newstr, ',');
+        }
+        free(buffer[i]);        
+    }
+    return newstr;
 }
