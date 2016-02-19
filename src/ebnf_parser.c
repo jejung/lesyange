@@ -204,6 +204,7 @@ void parse_ebnf(OPT_CALL)
 {
     FILE *fp = fopen(opt.ebnf_file, "r+");
     int line = 1, col = 1;
+    char *source = cat_file(opt.ebnf_file);
     if (fp != NULL) 
     {
         int *lltable[] = LL_TABLE;
