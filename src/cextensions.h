@@ -35,4 +35,6 @@ int sputc(char *input, const char c);
  */
 int itoa(int i, char *b);
 
+char *cat_file(char *file);
+
 #endif

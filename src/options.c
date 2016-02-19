@@ -32,6 +32,9 @@ options_t parse_args(int argc, char* argv[])
 			} else if (*arg == 'd') 
             {
 				r.d = 1;
+			} else if (*arg == 'c') 
+			{
+			    r.c = 1;
 			}
 		} else 
 			r.ebnf_file = argv[i];	
@@ -58,6 +61,7 @@ void print_usage(void)
 	printf("\t -h: print this help text and exit.\n");
 	printf("\t -v: print the lesyange version and exit.\n");
 	printf("\t -d: print debug information into the parse process\n");
+	printf("\t -c: cat the contents of the input file and exit\n");
     printf("\n");
 	exit(0);
 }

@@ -1,1 +1,1 @@
-Correct the line and col on lex analyzer process. It is being re-counted when the syntatic makes a shift operation.
+

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "cextensions.h"
 
@@ -115,4 +116,19 @@ char *ilstack_toa(ilstack_t *stack)
         free(buffer[i]);        
     }
     return newstr;
+}
+
+char *cat_file(char *file)
+{
+    FILE *fp = fopen(file, "r+");
+    fseek(fp, 0, SEEK_END);
+    long int size = ftell(fp);
+    //printf("File size: %li\n", size);
+    char *content = malloc((unsigned) (size + 1));
+    *content = '\0';
+    fseek(fp, 0, SEEK_SET);
+    fread(content, (size_t)size, 1, fp);
+    content[size] = '\0';
+    //printf("%s", content);
+    return content;
 }

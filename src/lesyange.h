@@ -28,11 +28,11 @@ typedef struct {
 	short h;
 	short v;
 	short d;
+	short c;
 } options_t;
 
 options_t parse_args(int argc,char *argv[]);
 void print_options(OPT_CALL);
 void print_usage(void);
 void print_version(void);
-
 #endif

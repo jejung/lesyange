@@ -1,4 +1,5 @@
 #include "lesyange.h"
+#include "cextensions.h"
 #include "ebnf_parser.h"
 
 int main(int argc, char* argv[]) 
@@ -7,7 +8,9 @@ int main(int argc, char* argv[])
 	if (opt.h)
 		print_usage();
 	else if (opt.v)
-       		print_version();
+       	print_version();
+    else if (opt.c) 
+        cat_file(opt.ebnf_file);
 	else
     {
 		print_options(opt);
