@@ -118,26 +118,17 @@ char *ilstack_toa(ilstack_t *stack)
     return newstr;
 }
 
-enum CEXT_ERROR_CODE cat_file(FILE *file, char **target)
+char *cat_file(char *file)
 {
-    char *content = NULL;
-    int s = fseek(file, 0, SEEK_END);
-    if (s)
-        return content;
-    long int size = ftell(file);
-    content = malloc((unsigned) (size + 1));
-    if (content == NULL)
-        return content;
-    s = fseek(file, 0, SEEK_SET);
-    if (s) {
-        free(content);
-        return NULL;
-    }
-    s = (int) fread(content, (size_t)size, 1, file);
-    if (s == 0) {
-        free(content);
-        return NULL;
-    }
+    FILE *fp = fopen(file, "r+");
+    fseek(fp, 0, SEEK_END);
+    long int size = ftell(fp);
+    //printf("File size: %li\n", size);
+    char *content = malloc((unsigned) (size + 1));
+    *content = '\0';
+    fseek(fp, 0, SEEK_SET);
+    fread(content, (size_t)size, 1, fp);
     content[size] = '\0';
+    //printf("%s", content);
     return content;
 }
