@@ -5,31 +5,35 @@ CC=gcc
 CFLAGS=-c -std=c11
 LDFLAGS=
 PROJDIRS=src/
-BINDIR=bin
+BINBASEDIR=bin
+BINDIRS=$(patsubst %,$(BINBASEDIR)/%,$(PROJDIRS))
 SRCFILES=$(shell find $(PROJDIRS) -type f -name "*.c")
 HDRFILES=$(shell find $(PROJDIRS) -type f -name "*.h")
-OBJFILES=$(patsubst %.c,$(BINDIR)/%.o,$(SRCFILES))
-DEPFILES=$(patsubst %.c,$(BINDIR)/%.d,$(SRCFILES))
+OBJFILES=$(patsubst %.c,$(BINBASEDIR)/%.o,$(SRCFILES))
+DEPFILES=$(patsubst %.c,$(BINBASEDIR)/%.d,$(SRCFILES))
 ALLFILES=$(SRCFILES) $(HDRFILES)
 TARGET=lesyange
 
-.PHONY: all clean dist check todolist
+.PHONY: all clean dist check todolist prepare
 
-$(BINDIR)/%.o: %.c Makefile
+prepare: 
+	@mkdir -p -v $(BINDIRS)
+
+$(BINBASEDIR)/%.o: %.c Makefile
 	$(CC) $(CFLAGS) $(WARNINGS) -MMD -MP $< -o $@
 
 all: $(TARGET)
 
-$(TARGET): $(OBJFILES)
+$(TARGET): prepare $(OBJFILES)
 	$(CC) $(LDFLAGS) $(OBJFILES) -o $(TARGET)
 
 todolist:
 	-@echo > TODO && for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file >> TODO; done; true
 
 clean:
-	-rm -f $(wildcard $(OBJFILES) $(DEPFILES))
+	-rm -r -f -v $(BINBASEDIR)
 
 print:
 	@echo "SRCFILES=$(SRCFILES)" && echo "OBJFILES=$(OBJFILES)"
-
+    
 -include $(DEPFILES)
