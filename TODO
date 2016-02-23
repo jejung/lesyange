@@ -1,3 +1,1 @@
 
-src/ebnf_parser.c:    // TODO: Make the lexer handle the pointer to the source.
-src/ebnf_parser.c:    // TODO: line and col are wrong.
