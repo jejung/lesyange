@@ -218,17 +218,16 @@ void parse_ebnf(OPT_CALL)
         UNEXPECTED_ERROR(ERROR_OPENING_FILE, "%s\n", opt.ebnf_file);
     }    
     char *source = fcat(fp);
+    fclose(fp);
     char *psource = source;
     if (source == NULL)
     {
         if (ferror(fp)) 
         {
-            fclose(fp);
             UNEXPECTED_ERROR(ERROR_READING_FILE, 
                 "Error reading the file %s\n", opt.ebnf_file);    
         } else
         {
-            fclose(fp);
             UNEXPECTED_ERROR(ERROR_NOT_ENOUGH_MEMORY, 
                "Insufficient memory to the file contents: %s\n", opt.ebnf_file);
         }
