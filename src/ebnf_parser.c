@@ -22,19 +22,19 @@
 #include "cextensions.h"
 
 void next_identifier(char **psource, int *col, ebnf_token_t *tk) 
-{
+{   
     TK_SETID(tk, IDENTIFIER);
-    while (**psource != '\0') 
+    while (*((*psource)++) != '\0') 
     {
-        int c = *(*psource++);
+        int c = **psource;
         if (isalpha(c) || isdigit(c) || c == '_')
         {
             INCP(col);
         }
         else
-        {
+        {   
             (*psource)--;
-            return;
+            break ;
         }
     }
 }
@@ -218,8 +218,6 @@ void parse_ebnf(OPT_CALL)
         UNEXPECTED_ERROR(ERROR_OPENING_FILE, "%s\n", opt.ebnf_file);
     }    
     char *source = fcat(fp);
-    fclose(fp);
-    char *psource = source;
     if (source == NULL)
     {
         if (ferror(fp)) 
@@ -229,9 +227,13 @@ void parse_ebnf(OPT_CALL)
         } else
         {
             UNEXPECTED_ERROR(ERROR_NOT_ENOUGH_MEMORY, 
-               "Insufficient memory to the file contents: %s\n", opt.ebnf_file);
+               "Insufficient memory to store the file contents: %s\n", 
+               opt.ebnf_file);
         }
     }
+    fclose(fp);
+    DEBUG_LOG(opt, "Source:\n%s\n", source);
+    char *psource = source;
     int line = 1, col = 1;
     int *lltable[] = LL_TABLE;
     int *productions[] = PRODUCTIONS;

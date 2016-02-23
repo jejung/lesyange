@@ -14,7 +14,7 @@ character = letter | digit | symbol | "_" ;
 identifier = letter , { letter | digit | "_" } ;
 terminal = "'" , character , { character } , "'" 
          | '"' , character , { character } , '"' ;
- 
+
 lhs = identifier ;
 rhs = identifier
      | terminal
@@ -23,6 +23,5 @@ rhs = identifier
      | "(" , rhs , ")"
      | rhs , "|" , rhs
      | rhs , "," , rhs ;
-
 rule = lhs , "=" , rhs , ";" ;
 grammar = { rule } ;

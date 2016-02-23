@@ -16,16 +16,16 @@ TARGET=lesyange
 
 .PHONY: all clean dist check todolist prepare
 
-prepare: 
-	@mkdir -p -v $(BINDIRS)
-
 $(BINBASEDIR)/%.o: %.c Makefile
 	$(CC) $(CFLAGS) $(WARNINGS) -MMD -MP $< -o $@
 
 all: $(TARGET)
 
-$(TARGET): prepare $(OBJFILES)
+$(TARGET): $(BINDIRS) $(OBJFILES)
 	$(CC) $(LDFLAGS) $(OBJFILES) -o $(TARGET)
+	
+$(BINDIRS): 
+	@mkdir -p -v $(BINDIRS)
 
 todolist:
 	-@echo > TODO && for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file >> TODO; done; true

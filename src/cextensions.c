@@ -134,20 +134,14 @@ char *ilstack_toa(ilstack_t *stack)
 
 char *fcat(FILE *file)
 {
-    fpos_t pos;
-    if (fgetpos(file, &pos))
-        return NULL;
     if (fseek(file, 0, SEEK_END))
         return NULL;
-    long int size = ftell(file);
-    if (ferror(file)) 
-        return NULL;
-    char *content = malloc((unsigned) (size + 1));
+    long size = ftell(file);
+    char *content = calloc((size_t)size + 1, sizeof(char));
     if (content == NULL)
         return NULL;
-    if (fseek(file, 0, SEEK_SET))
-        return NULL;
-    if (fread(content, (size_t)size, 1, file) != 1)
+    rewind(file);
+    if (fread(content, (size_t)size, 1, file))
         return NULL;
     content[size] = '\0';
     return content;
