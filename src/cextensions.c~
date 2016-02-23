@@ -133,7 +133,7 @@ char *fcat(FILE *file)
         return NULL;
     if (fseek(file, 0, SEEK_SET))
         return NULL;
-    if (fread(content, (size_t)size, 1, file) != 1)
+    if (fread(content, (size_t)size, 1, fp) != 1)
         return NULL;
     content[size] = '\0';
     return content;

@@ -41,8 +41,6 @@ int itoa(int i, char *b);
  * the content of the file in the allocated space, and return it. The actual pos
  * of the stream is maintained when this function execcutes succesfull, but if
  * one error occours, NULL will be returned and the stream pos may change.
- * You can teste ferror(file) after calling this function to know if an IO error
- * was raised.
  */
 char *fcat(FILE *file);
 

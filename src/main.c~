@@ -8,8 +8,7 @@ int main(int argc, char* argv[])
 	if (opt.h)
 		print_usage();
 	else if (opt.v)
-       	print_version();
-    else
+       	print_version();else
     {
 		print_options(opt);
 		parse_ebnf(opt);

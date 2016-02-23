@@ -10,7 +10,7 @@
 #define ERROR_UNEXPECTED_CHAR 5
 #define ERROR_UNEXPECTED_TOKEN 6
 #define ERROR_READING_FILE 7
-#define ERROR_NOT_ENOUGH_MEMORY 8
+#define ERROR_NOT_ENOUGH_MEMORY 8 
 
 #define OPT_CALL options_t opt
 #define INCP(pointer) (*pointer = (*pointer + 1));

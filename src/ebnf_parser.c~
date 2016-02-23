@@ -189,6 +189,7 @@ bingo:{
     int size = 1;
     char *pstart = start;
     while (pstart++ != *psource){size++;}
+    printf("%d\n", size);
     tk.lexeme = malloc(sizeof(char) * (unsigned)(size + 1));
     strncpy(tk.lexeme, start, (unsigned)size-1);
     tk.lexeme[size] = '\0';

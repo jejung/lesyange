@@ -36,8 +36,7 @@
 #define TK_SETLEX(tk, c) do {\
     free((tk)->lexeme); \
     (tk)->lexeme = malloc(sizeof(char) * 2); \
-    sprintf((tk)->lexeme, "%c", c);\
-    } while(0);
+    sprintf((tk)->lexeme, "%c", c);} while(0);
 
 #define FIRST_NT NT_LHS
 
