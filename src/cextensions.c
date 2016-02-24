@@ -107,8 +107,7 @@ char *ilstack_toa(ilstack_t *stack)
     int nc = 0;
     while (node != NULL)
     {
-        char *value = malloc(sizeof(char) * 25);
-        *value = '\0';
+        char *value = calloc(25, sizeof(char));
         total_len += (unsigned int) itoa(node->value, value);       
         if (nc!=0) 
         {
@@ -118,7 +117,7 @@ char *ilstack_toa(ilstack_t *stack)
         nc++;
         node = node->next;
     }
-    char *newstr = malloc(sizeof(char) * (long unsigned int)(total_len + 1));
+    char *newstr = calloc((unsigned)(total_len + 1), sizeof(char));
     int i;
     for (i = 0; i < stack->size; i++)
     {
@@ -141,8 +140,7 @@ char *fcat(FILE *file)
     if (content == NULL)
         return NULL;
     rewind(file);
-    if (fread(content, (size_t)size, 1, file))
-        return NULL;
+    fread(content, (size_t)size, 1, file);
     content[size] = '\0';
     return content;
 }

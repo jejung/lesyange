@@ -21,35 +21,37 @@
 #include "ebnf_parser.h"
 #include "cextensions.h"
 
-void next_identifier(char **psource, int *col, ebnf_token_t *tk) 
+char *next_identifier(char *source, int *col, ebnf_token_t *tk) 
 {   
+    char *psource = source;
     TK_SETID(tk, IDENTIFIER);
-    while (*((*psource)++) != '\0') 
+    while (*psource != '\0') 
     {
-        int c = **psource;
-        if (isalpha(c) || isdigit(c) || c == '_')
+        if (isalpha(*psource) || isdigit(*psource) || *psource == '_')
         {
             INCP(col);
         }
         else
-        {   
-            (*psource)--;
-            break ;
+        {
+            return --psource;
         }
+        psource++;
     }
+    return psource;
 }
 
-void next_comment(char **psource, int *line, int *col, ebnf_token_t *tk) 
+char *next_comment(char *source, int *line, int *col, ebnf_token_t *tk) 
 {
+    char *psource = source;
     TK_SETID(tk, COMMENT);
     char last = 0;
-    while (**psource != '\0') 
+    while (*psource != '\0') 
     {
-        char c = *(*psource++);
+        char c = *psource++;
         INCP(col);
         if (last == '*' && c == ')') 
-            return;
-        
+            return psource;
+
         if (c == '\n') 
         {
             INCP(line);
@@ -62,38 +64,41 @@ void next_comment(char **psource, int *line, int *col, ebnf_token_t *tk)
         tk->line, tk->col);
 }
 
-void next_group_or_comment(char **psource,int *line,int *col,ebnf_token_t *tk) 
+char *next_group_or_comment(char *source,int *line,int *col,ebnf_token_t *tk) 
 {
-    char c = *(*psource++);
+    char *psource = source;
+    char c = *psource++;
     if (c == '\0') 
     {
         UNEXPECTED_ERROR(ERROR_UNEXPECTED_EOF, 
             "Unexpected eof at line %d, col %d", *line, *col);
     } else if (c == '*') 
     {
-        next_comment(psource, line, col, tk);
+        return next_comment(psource, line, col, tk);
     } else 
     {
-        (*psource)--;
+        psource--;
         TK_SETID(tk, OPEN_GROUP);
+        return psource;
     }
 }
 
-void next_terminal(char **psource,int *line,int *col,const char close,ebnf_token_t *tk) 
+char *next_terminal(char *source,int *line,int *col,const char close,ebnf_token_t *tk) 
 {
-    char c = *(*psource++);
+    char *psource = source;
     INCP(col);
-    while (c != '\0') 
+    psource++;
+    while (*psource != '\0') 
     {
-        if (c == close) 
+        if (*psource == close) 
         {
-            return; 
-        } else if (c == '\n')
+            return psource; 
+        } else if (*psource == '\n')
         {
             INCP(line);
             *col = 1;
         }
-        c = *(*psource++);
+        psource++;
         INCP(col);
     }
     UNEXPECTED_ERROR(ERROR_UNTERMINATED_LITERAL, 
@@ -108,79 +113,79 @@ ebnf_token_t next_token(char **psource, int *line, int *col)
     tk.lexeme = NULL; 
     tk.line = *line;
     tk.col = *col;
-    char c = **psource;
-    while (c != '\0') 
+    while (**psource != '\0') 
     {
-        if (isalpha(c)) 
+        if (isalpha(**psource)) 
         {
-            next_identifier(psource, col, &tk);
+            *psource = next_identifier(*psource, col, &tk);
             goto bingo;
-        } else if (c == '\t' || c == '\r' || c == ' ') 
+        } else if (**psource == '\t' || **psource == '\r' || **psource == ' ') 
         {
             // nothing to do;
-        } else if (c == '\n')
+        } else if (**psource == '\n')
         {
             INCP(line);
             *col = 1;
-        } else if (c == '=') 
+        } else if (**psource == '=') 
         {
             TK_SETID(&tk, DEFINE);
             goto bingo;
-        } else if (c == ',') 
+        } else if (**psource == ',') 
         {
             TK_SETID(&tk, CAT);
             goto bingo;
-        }  else if (c == ';')
+        }  else if (**psource == ';')
         {
             TK_SETID(&tk, TERMINATION_SC);
             goto bingo;
-        } else if (c == '|') 
+        } else if (**psource == '|') 
         {
             TK_SETID(&tk, UNION);
             goto bingo;
-        } else if (c == '[') {
+        } else if (**psource == '[') {
             TK_SETID(&tk, OPEN_OPTION);
             goto bingo;
-        }  else if (c == ']') {
+        }  else if (**psource == ']') {
             TK_SETID(&tk, CLOSE_OPTION);
             goto bingo;
-        } else if (c == '{') {
+        } else if (**psource == '{') {
             TK_SETID(&tk, OPEN_REPETITION);
             goto bingo;
-        } else if (c == '}') {
+        } else if (**psource == '}') {
             TK_SETID(&tk, CLOSE_REPETITION);
             goto bingo; 
-        } else if (c == '(') {
-            next_group_or_comment(psource, line, col, &tk);
+        } else if (**psource == '(') {
+            *psource = next_group_or_comment(*psource, line, col, &tk);
             if (tk.id == COMMENT) 
             {
                 tk = next_token(psource, line, col);
                 goto bingo;
             }
             goto bingo;
-        } else if (c == ')') {
+        } else if (**psource == ')') {
             TK_SETID(&tk, CLOSE_GROUP);
             goto bingo;
-        } else if (c == '\"') {
+        } else if (**psource == '\"') {
             TK_SETID(&tk, TERMINAL_DQ);
-            next_terminal(psource, line, col, '\"', &tk); 
+            *psource = next_terminal(*psource, line, col, '\"', &tk); 
             goto bingo;
-        } else if (c == '\'') {
+        } else if (**psource == '\'') {
             TK_SETID(&tk, TERMINAL_SQ);
-            next_terminal(psource, line, col, '\'', &tk);
+            *psource = next_terminal(*psource, line, col, '\'', &tk);
             goto bingo;
-        } else if (c == '<') {
-            next_identifier(psource, col, &tk);
-            c = *(*psource++);
+        } else if (**psource == '<') {
+            *psource = next_identifier(*psource, col, &tk);
+            (*psource)++;
             INCP(col);
-            if (c != '>')
+            if (**psource != '>')
                 UNEXPECTED_ERROR(ERROR_UNEXPECTED_CHAR, 
-                  "Expecting '<' but found '%c' at line %d, col %d", c, *line, *col);
+                  "Expecting '<' but found '%c' at line %d, col %d", **psource,
+                  *line, *col);
             goto bingo;
-        } else if (c == '-') {
+        } else if (**psource == '-') {
             TK_SETID(&tk, EXCEPTION);
             goto bingo;
-        } else if (c == '.') {
+        } else if (**psource == '.') {
             TK_SETID(&tk, TERMINATION_DOT);
             goto bingo;
         } else 
@@ -188,11 +193,11 @@ ebnf_token_t next_token(char **psource, int *line, int *col)
             TK_SETID(&tk, UNKNOWN);
             goto bingo;
         }
+        (*psource)++;
         start = *psource;
-        c = *(*psource++);
         tk.line = *line;
         tk.col = INCP(col);
-        if (c == '\0') 
+        if (**psource == '\0') 
         {
             TK_SETID(&tk, DOLLAR);
             TK_SETLEX(&tk, '$');
@@ -202,9 +207,9 @@ ebnf_token_t next_token(char **psource, int *line, int *col)
 bingo:{
     int size = 1;
     char *pstart = start;
-    while (pstart++ != *psource){size++;}
-    tk.lexeme = malloc(sizeof(char) * (unsigned)(size + 1));
-    strncpy(tk.lexeme, start, (unsigned)size-1);
+    while (pstart != *psource){size++; pstart++;}
+    tk.lexeme = calloc((size_t)size + 1, sizeof(char));
+    strncpy(tk.lexeme, start, (unsigned)size);
     tk.lexeme[size] = '\0';
 }
     return tk;
@@ -258,6 +263,7 @@ void parse_ebnf(OPT_CALL)
         int top = ilstack_pop(&stack);
         if (tk.id == top)
         {
+            psource++;
             line = tline;
             col = tcol;
             DEBUG_LOG(opt, 

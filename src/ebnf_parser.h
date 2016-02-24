@@ -59,7 +59,7 @@
 {\
     (int[]){-1,-1,-1, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},/*NT_LHS*/\
     (int[]){-1,-1,-1, 7,-1,-1,10,-1,11,-1,12,-1, 8, 9,-1,-1,-1},/*NT_RHS*/\
-    (int[]){16,16,16,16,15,14,16,16,16,16,16,16,16,16,16,16,16},/*NT_XRHS*/\
+    (int[]){15,15,15,15,14,13,15,15,15,15,15,15,15,15,15,15,15},/*NT_XRHS*/\
     (int[]){-1, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 5},/*NT_TERMINATE*/\
     (int[]){ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},/*NT_RULE*/\
     (int[]){ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},/*NT_XRULE*/\
@@ -81,10 +81,22 @@
     (int[]){CLOSE_OPTION,NT_XRHS,NT_RHS,OPEN_OPTION,UNKNOWN},          /*10.<rhs> ::= "[" <rhs><xrhs> "]";*/\
     (int[]){CLOSE_REPETITION,NT_XRHS,NT_RHS,OPEN_REPETITION,UNKNOWN},  /*11.<rhs> ::= "{" <rhs><xrhs> "}";*/\
     (int[]){CLOSE_GROUP,NT_XRHS,NT_RHS,OPEN_GROUP,UNKNOWN},            /*12.<rhs> ::= "(" <rhs><xrhs> ")";*/\
-    (int[]){NT_XRHS,NT_RHS,UNKNOWN},                                   /*13.<rhs> ::= <rhs><xrhs>;*/\
-    (int[]){NT_XRHS,NT_RHS,UNION,UNKNOWN},                             /*14.<xrhs> ::= "|"<rhs><xrhs>;*/\
-    (int[]){NT_XRHS,NT_RHS,CAT,UNKNOWN},                               /*15.<xrhs> ::= "," <rhs><xrhs>;*/\
-    (int[]){UNKNOWN}                                                   /*16.<xrhs> ::= &;*/\
+    (int[]){NT_XRHS,NT_RHS,UNION,UNKNOWN},                             /*13.<xrhs> ::= "|"<rhs><xrhs>;*/\
+    (int[]){NT_XRHS,NT_RHS,CAT,UNKNOWN},                               /*14.<xrhs> ::= "," <rhs><xrhs>;*/\
+    (int[]){UNKNOWN}                                                   /*15.<xrhs> ::= &;*/\
+}
+
+#define ACT_SETUP 1
+
+#define ACTION_TABLE \
+{\
+    (int[]){-1,-1,-1, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},/*NT_LHS*/\
+    (int[]){-1,-1,-1, 7,-1,-1,10,-1,11,-1,12,-1, 8, 9,-1,-1,-1},/*NT_RHS*/\
+    (int[]){15,15,15,15,14,13,15,15,15,15,15,15,15,15,15,15,15},/*NT_XRHS*/\
+    (int[]){-1, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 5},/*NT_TERMINATE*/\
+    (int[]){ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},/*NT_RULE*/\
+    (int[]){ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},/*NT_XRULE*/\
+    (int[]){ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} /*NT_GRAMMAR*/\
 }
 
 typedef struct {
