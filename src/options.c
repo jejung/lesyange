@@ -23,6 +23,7 @@ options_t parse_args(int argc, char* argv[])
 	r.ebnf_file = NULL;
 	r.h = 0;
 	r.v = 0;
+    r.d = 0;
 	if (argc == 1) 
     {
 		r.h = 1;

@@ -67,7 +67,8 @@ char *next_comment(char *source, int *line, int *col, ebnf_token_t *tk)
 char *next_group_or_comment(char *source,int *line,int *col,ebnf_token_t *tk) 
 {
     char *psource = source;
-    char c = *psource++;
+    psource++;
+    char c = *psource;
     if (c == '\0') 
     {
         UNEXPECTED_ERROR(ERROR_UNEXPECTED_EOF, 
