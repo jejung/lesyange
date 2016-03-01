@@ -47,17 +47,17 @@ char *next_comment(char *source, int *line, int *col, ebnf_token_t *tk)
     char last = 0;
     while (*psource != '\0') 
     {
-        char c = *psource++;
         INCP(col);
-        if (last == '*' && c == ')') 
-            return psource;
+        if (last == '*' && *psource == ')') 
+            return ++psource;
 
-        if (c == '\n') 
+        if (*psource == '\n') 
         {
             INCP(line);
             *col = 1;
         }
-        last = c;
+        last = *psource;
+        psource++;
     }
     UNEXPECTED_ERROR(ERROR_UNTERMINATED_COMMENT, 
         "The comment at line %d, col %d was not correctly closed", 
@@ -159,8 +159,7 @@ ebnf_token_t next_token(char **psource, int *line, int *col)
             *psource = next_group_or_comment(*psource, line, col, &tk);
             if (tk.id == COMMENT) 
             {
-                tk = next_token(psource, line, col);
-                goto bingo;
+                return next_token(psource, line, col);
             }
             goto bingo;
         } else if (**psource == ')') {
@@ -270,14 +269,9 @@ void parse_ebnf(OPT_CALL)
             DEBUG_LOG(opt, 
                 "Syntatic: Reduce %s(%s) at line %d, col %d", 
                     tk.class, tk.lexeme, tk.line, tk.col);
-        } else 
+            
+        } else if (IS_NT(top))
         {
-            if (top < FIRST_NT)
-            {
-                UNEXPECTED_ERROR(ERROR_UNEXPECTED_TOKEN,
-                  "Unexpected token %s(%s) at line %d, col %d", 
-                    tk.class, tk.lexeme, tk.line, tk.col);
-            }
             int shift = lltable[top-FIRST_NT][tk.id];
             if (shift == -1) 
             {
@@ -295,6 +289,9 @@ void parse_ebnf(OPT_CALL)
                 prod++;
             }
             psource = pos;
+        } else 
+        {
+            execute_ebnf_action(opt, top, &tk);
         }
     }
     free(source);    
