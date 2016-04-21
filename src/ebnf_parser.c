@@ -21,198 +21,224 @@
 #include "ebnf_parser.h"
 #include "cextensions.h"
 
-char *next_identifier(char *source, int *col, ebnf_token_t *tk) 
-{   
-    char *psource = source;
-    TK_SETID(tk, IDENTIFIER);
-    while (*psource != '\0') 
+typedef struct node {
+    int info;
+    struct node *next;
+} stnode;
+
+stnode *stack = NULL;
+char *source;
+int line = 1, col = 1;
+
+void stack_put(int info) 
+{
+    if (stack == NULL)
     {
-        if (isalpha(*psource) || isdigit(*psource) || *psource == '_')
+        stack = malloc(sizeof(stnode));
+        stack->info = info;
+        stack->next = NULL;
+    } else 
+    {
+        stnode *temp = malloc(sizeof(stnode));
+        temp->info = info;
+        temp->next = stack;
+        stack = temp;
+    }
+}
+
+int stack_pop() 
+{
+    if (stack == NULL)
+        return -1;
+    else 
+    {
+        int info = stack->info;
+        stack = stack->next;
+        return info;
+    }
+}
+
+void next_identifier(ebnf_token_t *tk) 
+{   
+    TK_SETID(tk, IDENTIFIER);
+    while (*source != '\0') 
+    {
+        if (isalpha(*source) || isdigit(*source) || *source == '_')
         {
-            INCP(col);
+            col++;
         }
         else
         {
-            return --psource;
+            source--;
+            return;
         }
-        psource++;
+        source++;
     }
-    return psource;
 }
 
-char *next_comment(char *source, int *line, int *col, ebnf_token_t *tk) 
+void next_comment(ebnf_token_t *tk) 
 {
-    char *psource = source;
     TK_SETID(tk, COMMENT);
-    char last = 0;
-    while (*psource != '\0') 
+    char last = '\0';
+    while (*source != '\0') 
     {
-        INCP(col);
-        if (last == '*' && *psource == ')') 
-            return ++psource;
+        col++;
+        if (last == '*' && *source == ')') 
+            return;
 
-        if (*psource == '\n') 
+        if (*source == '\n') 
         {
-            INCP(line);
-            *col = 1;
+            line++;
+            col = 1;
         }
-        last = *psource;
-        psource++;
+        last = *source;
+        source++;
     }
     UNEXPECTED_ERROR(ERROR_UNTERMINATED_COMMENT, 
         "The comment at line %d, col %d was not correctly closed", 
         tk->line, tk->col);
 }
 
-char *next_group_or_comment(char *source,int *line,int *col,ebnf_token_t *tk) 
+void next_group_or_comment(ebnf_token_t *tk) 
 {
-    char *psource = source;
-    psource++;
-    char c = *psource;
+    source++;
+    char c = *source;
     if (c == '\0') 
     {
         UNEXPECTED_ERROR(ERROR_UNEXPECTED_EOF, 
-            "Unexpected eof at line %d, col %d", *line, *col);
+            "Unexpected eof at line %d, col %d", line, col);
     } else if (c == '*') 
     {
-        return next_comment(psource, line, col, tk);
+        next_comment(tk);
     } else 
     {
-        psource--;
+        source--;
         TK_SETID(tk, OPEN_GROUP);
-        return psource;
     }
 }
 
-char *next_terminal(char *source,int *line,int *col,const char close,ebnf_token_t *tk) 
+void next_terminal(const char close, ebnf_token_t *tk) 
 {
-    char *psource = source;
-    INCP(col);
-    psource++;
-    while (*psource != '\0') 
+    col++;
+    source++;
+    while (*source != '\0') 
     {
-        if (*psource == close) 
+        if (*source == close) 
         {
-            return psource; 
-        } else if (*psource == '\n')
+            return; 
+        } else if (*source == '\n')
         {
-            INCP(line);
-            *col = 1;
+            line++;
+            col = 1;
         }
-        psource++;
-        INCP(col);
+        source++;
+        col++;
     }
     UNEXPECTED_ERROR(ERROR_UNTERMINATED_LITERAL, 
         "The literal at line %d, col %d was not correctly closed", tk->line, tk->col);
 }
 
-ebnf_token_t next_token(char **psource, int *line, int *col) 
+void next_token(ebnf_token_t *tk) 
 {
-    ebnf_token_t tk;
-    TK_SETID(&tk, UNKNOWN);
-    char *start = *psource;
-    tk.lexeme = NULL; 
-    tk.line = *line;
-    tk.col = *col;
-    while (**psource != '\0') 
+    TK_SETID(tk, UNKNOWN);
+    char *start = source;
+    tk->lexeme = NULL; 
+    tk->line = line;
+    tk->col = col;
+    while (*source != '\0') 
     {
-        if (isalpha(**psource)) 
+        if (isalpha(*source)) 
         {
-            *psource = next_identifier(*psource, col, &tk);
-            goto bingo;
-        } else if (**psource == '\t' || **psource == '\r' || **psource == ' ') 
+            next_identifier(tk);
+            break;
+        } else if (*source == '\t' || *source == '\r' || *source == ' ') 
         {
             // nothing to do;
-        } else if (**psource == '\n')
+        } else if (*source == '\n')
         {
-            INCP(line);
-            *col = 1;
-        } else if (**psource == '=') 
+            line++;
+            col = 1;
+        } else if (*source == '=') 
         {
-            TK_SETID(&tk, DEFINE);
-            goto bingo;
-        } else if (**psource == ',') 
+            TK_SETID(tk, DEFINE);
+            break;
+        } else if (*source == ',') 
         {
-            TK_SETID(&tk, CAT);
-            goto bingo;
-        }  else if (**psource == ';')
+            TK_SETID(tk, CAT);
+            break;
+        }  else if (*source == ';')
         {
-            TK_SETID(&tk, TERMINATION_SC);
-            goto bingo;
-        } else if (**psource == '|') 
+            TK_SETID(tk, TERMINATION_SC);
+            break;
+        } else if (*source == '|') 
         {
-            TK_SETID(&tk, UNION);
-            goto bingo;
-        } else if (**psource == '[') {
-            TK_SETID(&tk, OPEN_OPTION);
-            goto bingo;
-        }  else if (**psource == ']') {
-            TK_SETID(&tk, CLOSE_OPTION);
-            goto bingo;
-        } else if (**psource == '{') {
-            TK_SETID(&tk, OPEN_REPETITION);
-            goto bingo;
-        } else if (**psource == '}') {
-            TK_SETID(&tk, CLOSE_REPETITION);
-            goto bingo; 
-        } else if (**psource == '(') {
-            *psource = next_group_or_comment(*psource, line, col, &tk);
-            if (tk.id == COMMENT) 
+            TK_SETID(tk, UNION);
+            break;
+        } else if (*source == '[') {
+            TK_SETID(tk, OPEN_OPTION);
+            break;
+        }  else if (*source == ']') {
+            TK_SETID(tk, CLOSE_OPTION);
+            break;
+        } else if (*source == '{') {
+            TK_SETID(tk, OPEN_REPETITION);
+            break;
+        } else if (*source == '}') {
+            TK_SETID(tk, CLOSE_REPETITION);
+            break;
+        } else if (*source == '(') {
+            next_group_or_comment(tk);
+            if (tk->id != COMMENT) 
             {
-                return next_token(psource, line, col);
+                break;
             }
-            goto bingo;
-        } else if (**psource == ')') {
-            TK_SETID(&tk, CLOSE_GROUP);
-            goto bingo;
-        } else if (**psource == '\"') {
-            TK_SETID(&tk, TERMINAL_DQ);
-            *psource = next_terminal(*psource, line, col, '\"', &tk); 
-            goto bingo;
-        } else if (**psource == '\'') {
-            TK_SETID(&tk, TERMINAL_SQ);
-            *psource = next_terminal(*psource, line, col, '\'', &tk);
-            goto bingo;
-        } else if (**psource == '<') {
-            *psource = next_identifier(*psource, col, &tk);
-            (*psource)++;
-            INCP(col);
-            if (**psource != '>')
+        } else if (*source == ')') {
+            TK_SETID(tk, CLOSE_GROUP);
+            break;
+        } else if (*source == '\"') {
+            TK_SETID(tk, TERMINAL_DQ);
+            next_terminal('\"', tk); 
+            break;
+        } else if (*source == '\'') {
+            TK_SETID(tk, TERMINAL_SQ);
+            next_terminal('\'', tk);
+            break;
+        } else if (*source == '<') {
+            next_identifier(tk);
+            source++;
+            col++;
+            if (*source != '>')
                 UNEXPECTED_ERROR(ERROR_UNEXPECTED_CHAR, 
-                  "Expecting '<' but found '%c' at line %d, col %d", **psource,
-                  *line, *col);
-            goto bingo;
-        } else if (**psource == '-') {
-            TK_SETID(&tk, EXCEPTION);
-            goto bingo;
-        } else if (**psource == '.') {
-            TK_SETID(&tk, TERMINATION_DOT);
-            goto bingo;
+                  "Expecting '<' but found '%c' at line %d, col %d", *source, line, col);
+            break;
+        } else if (*source == '-') {
+            TK_SETID(tk, EXCEPTION);
+            break;
+        } else if (*source == '.') {
+            TK_SETID(tk, TERMINATION_DOT);
+            break;
         } else 
         {
-            TK_SETID(&tk, UNKNOWN);
-            goto bingo;
+            TK_SETID(tk, UNKNOWN);
+            break;
         }
-        (*psource)++;
-        start = *psource;
-        tk.line = *line;
-        tk.col = INCP(col);
-        if (**psource == '\0') 
+        source++;
+        start = source;
+        tk->line = line;
+        tk->col = col++;
+        if (*source == '\0') 
         {
-            TK_SETID(&tk, DOLLAR);
-            TK_SETLEX(&tk, '$');
-            return tk;
+            TK_SETID(tk, DOLLAR);
+            TK_SETLEX(tk, '$');
+            return;
         }
     }
-bingo:{
     int size = 1;
     char *pstart = start;
-    while (pstart != *psource){size++; pstart++;}
-    tk.lexeme = calloc((size_t)size + 1, sizeof(char));
-    strncpy(tk.lexeme, start, (unsigned)size);
-    tk.lexeme[size] = '\0';
-}
-    return tk;
+    while (pstart != source){size++; pstart++;}
+    tk->lexeme = calloc((size_t)size + 1, sizeof(char));
+    strncpy(tk->lexeme, start, (unsigned)size);
+    tk->lexeme[size] = '\0';
 }
 
 void parse_ebnf(OPT_CALL) 
@@ -222,7 +248,7 @@ void parse_ebnf(OPT_CALL)
     {   
         UNEXPECTED_ERROR(ERROR_OPENING_FILE, "%s\n", opt.ebnf_file);
     }    
-    char *source = fcat(fp);
+    source = fcat(fp);
     if (source == NULL)
     {
         if (ferror(fp)) 
@@ -238,38 +264,38 @@ void parse_ebnf(OPT_CALL)
     }
     fclose(fp);
     DEBUG_LOG(opt, "Source:\n%s\n", source);
-    char *psource = source;
-    int line = 1, col = 1;
     int *lltable[] = LL_TABLE;
     int *productions[] = PRODUCTIONS;
-    ilstack_t stack;
-    ilstack_init(&stack);
-    ilstack_push(&stack, DOLLAR);
-    ilstack_push(&stack, NT_GRAMMAR);
-    while (stack.top != NULL)
+    stack_put(DOLLAR);
+    stack_put(NT_GRAMMAR);
+    while (stack != NULL)
     {
-        char *pos = psource;
-        int tline = line, tcol = col;
-        ebnf_token_t tk = next_token(&psource, &tline, &tcol);
+        char *pos = source; //keep track of initial point.
+        ebnf_token_t tk;
+        tk.class = NULL;
+        tk.lexeme = NULL;
+        next_token(&tk);
         DEBUG_LOG(opt, 
             "Lexer: %s(%s) at line %d, col %d", 
                 tk.class, tk.lexeme, tk.line, tk.col);
-        if (opt.d)
+        if (opt.flags & MSK_OPT_DEBUG)
         {
-            char *stack_str = ilstack_toa(&stack);
-            DEBUG_LOG(opt, "Stack: %s", stack_str);
-            free(stack_str);
+            printf("Stack:");
+            stnode *temp = stack;
+            while (temp != NULL) 
+            {
+                printf("%d,", temp->info);
+                temp = temp->next;
+            }
+            printf("\n");
         }
-        int top = ilstack_pop(&stack);
+        int top = stack_pop();
         if (tk.id == top)
         {
-            psource++;
-            line = tline;
-            col = tcol;
             DEBUG_LOG(opt, 
                 "Syntatic: Reduce %s(%s) at line %d, col %d", 
                     tk.class, tk.lexeme, tk.line, tk.col);
-            
+            source++;
         } else if (IS_NT(top))
         {
             int shift = lltable[top-FIRST_NT][tk.id];
@@ -285,14 +311,15 @@ void parse_ebnf(OPT_CALL)
             int *prod = productions[shift];
             while (*prod != UNKNOWN) 
             {
-                ilstack_push(&stack, *prod);
+                stack_put(*prod);
                 prod++;
             }
-            psource = pos;
+            source = pos;
         } else 
         {
             execute_ebnf_action(opt, top, &tk);
+            source = pos;
         }
+        free(tk.lexeme);
     }
-    free(source);    
 }

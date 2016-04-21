@@ -27,26 +27,26 @@
 #define ERROR_NOT_ENOUGH_MEMORY 8
 
 #define OPT_CALL options_t opt
-#define INCP(pointer) (*pointer = (*pointer + 1));
-#define MACRO_NAME(macro) #macro
 
 #define UNEXPECTED_ERROR(macrocode, ...) \
     do { printf("Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
         printf(__VA_ARGS__); \
        exit(macrocode); \
-    } while(0); 
+    } while(0);
 
-#define DEBUG_LOG(opt, ...) if (opt.d){do{printf(__VA_ARGS__); printf("\n");} while(0);}
+#define MSK_OPT_HELP 0x01
+#define MSK_OPT_VERSION 0x02
+#define MSK_OPT_DEBUG 0x04
+    
+#define DEBUG_LOG(opt, ...) if (opt.flags & MSK_OPT_DEBUG){ printf(__VA_ARGS__); printf("\n"); }
 
 typedef struct {
 	char *ebnf_file;
-	short h;
-	short v;
-	short d;
-	short c;
+	unsigned int flags;
+    char debug_type;
 } options_t;
 
-options_t parse_args(int argc,char *argv[]);
+options_t opt_parse_args(int argc,char *argv[]);
 void print_options(OPT_CALL);
 void print_usage(void);
 void print_version(void);

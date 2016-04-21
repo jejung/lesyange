@@ -18,10 +18,10 @@
 
 int main(int argc, char* argv[]) 
 {
-	options_t opt = parse_args(argc, argv);
-	if (opt.h)
+	options_t opt = opt_parse_args(argc, argv);
+	if (opt.flags & MSK_OPT_HELP)
 		print_usage();
-	else if (opt.v)
+	else if (opt.flags & MSK_OPT_VERSION)
        	print_version();
     else
     {

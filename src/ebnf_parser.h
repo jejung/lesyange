@@ -109,7 +109,7 @@
 
 typedef struct {
 	short id;
-    const char* class;
+    const char *class;
 	char *lexeme;
 	int line;
 	int col;

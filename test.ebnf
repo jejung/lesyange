@@ -1,6 +1,6 @@
 (* comment abc
-*this doesn't matter at all
-*)
+ *this doesn'(t matter )at all
+ *)
 
 letter = ("A" | "B" | "C" | "D" | "E" | "F" | "G"
        | "H" | "I" | "J" | "K" | "L" | "M" | "N"
