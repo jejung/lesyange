@@ -53,7 +53,9 @@ int stack_pop()
     else 
     {
         int info = stack->info;
+        stnode *temp = stack;
         stack = stack->next;
+        free(temp);
         return info;
     }
 }
@@ -263,7 +265,7 @@ void parse_ebnf(OPT_CALL)
         }
     }
     fclose(fp);
-    DEBUG_LOG(opt, "Source:\n%s\n", source);
+    DEBUG_LOG(opt, '*', "Source:\n%s\n", source);
     int *lltable[] = LL_TABLE;
     int *productions[] = PRODUCTIONS;
     stack_put(DOLLAR);
@@ -275,10 +277,10 @@ void parse_ebnf(OPT_CALL)
         tk.class = NULL;
         tk.lexeme = NULL;
         next_token(&tk);
-        DEBUG_LOG(opt, 
+        DEBUG_LOG(opt, 'l', 
             "Lexer: %s(%s) at line %d, col %d", 
                 tk.class, tk.lexeme, tk.line, tk.col);
-        if (opt.flags & MSK_OPT_DEBUG)
+        if ((opt.flags & MSK_OPT_DEBUG) && opt.debug_type == 'Y')
         {
             printf("Stack:");
             stnode *temp = stack;
@@ -292,8 +294,8 @@ void parse_ebnf(OPT_CALL)
         int top = stack_pop();
         if (tk.id == top)
         {
-            DEBUG_LOG(opt, 
-                "Syntatic: Reduce %s(%s) at line %d, col %d", 
+            DEBUG_LOG(opt, 's', 
+            "Syntatic: Reduce %s(%s) at line %d, col %d", 
                     tk.class, tk.lexeme, tk.line, tk.col);
             source++;
         } else if (IS_NT(top))
@@ -305,7 +307,7 @@ void parse_ebnf(OPT_CALL)
                      "Unexpected token %s(%s) at line %d, col %d", 
                         tk.class, tk.lexeme, tk.line, tk.col);
             }
-            DEBUG_LOG(opt, 
+            DEBUG_LOG(opt, 's',
                 "Syntatic: Shift %d -> %d at line %d, col %d", 
                     top, shift, tk.line, tk.col);
             int *prod = productions[shift];

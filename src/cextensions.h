@@ -18,18 +18,6 @@
 #include <stdio.h>
 
 /**
- * Append the given char to the given input. The input needs to be large enough.
- * The difference in chars from the input to the new char will be returned.
- */
-int sputc(char *input, const char c);
-/**
- * Append the result of transforming the i parameter in char representation
- * to the b pointer. The b pointer needs to be large enough. The count of
- * bytes written to the string will be returned, note that this canbe or not
- * the new length of the string.
- */
-int itoa(int i, char *b);
-/**
  * Get the size of the file and malloc sufficient space for it, then read all 
  * the content of the file in the allocated space, and return it. The actual pos
  * of the stream is maintained when this function execcutes succesfull, but if

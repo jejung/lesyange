@@ -38,7 +38,7 @@
 #define MSK_OPT_VERSION 0x02
 #define MSK_OPT_DEBUG 0x04
     
-#define DEBUG_LOG(opt, ...) if (opt.flags & MSK_OPT_DEBUG){ printf(__VA_ARGS__); printf("\n"); }
+#define DEBUG_LOG(opt, type, ...) if ((opt.flags & MSK_OPT_DEBUG) && (type == '*' || opt.debug_type == '*' || type == opt.debug_type)){ printf(__VA_ARGS__); printf("\n"); }
 
 typedef struct {
 	char *ebnf_file;

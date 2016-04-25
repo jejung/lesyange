@@ -34,18 +34,36 @@ options_t opt_parse_args(int argc, char* argv[])
 		if (*arg == '-') 
         {
 			arg++;
-			if (*arg == 'h') 
-            {
-				r.flags = r.flags | MSK_OPT_HELP;
-				break;
-			} else if (*arg == 'v') 
-            {
-				r.flags = r.flags | MSK_OPT_VERSION;
-				break;
-			} else if (*arg == 'd') 
-            {
-				r.flags = r.flags | MSK_OPT_DEBUG;
-			}
+            switch (*arg) {
+                case 'h':{ 
+                    r.flags |= MSK_OPT_HELP;
+                     return r;
+                } case 'v':{
+                    r.flags |= MSK_OPT_VERSION;
+                    return r;
+                } case 'd':{
+                    r.flags |= MSK_OPT_DEBUG;
+                    arg++;
+                    if (*arg == '=') 
+                    {
+                        arg++;
+                        if (*arg == '\0')
+                        {
+                            r.flags |= MSK_OPT_HELP;
+                            return r;
+                        }
+                        r.debug_type = *arg;
+                    } else if (*arg == '\0') 
+                    {
+                        r.debug_type = '*';
+                    } else 
+                    {
+                        r.flags |= MSK_OPT_HELP;
+                        return r;
+                    }
+                    break;
+                }
+            }
 		} else 
 			r.ebnf_file = argv[i];	
 	}
