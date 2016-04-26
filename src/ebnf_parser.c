@@ -284,7 +284,7 @@ void parse_ebnf(OPT_CALL)
         DEBUG_LOG(opt, 'l', 
             "Lexer: %s(%s) at line %d, col %d", 
                 tk.class, tk.lexeme, tk.line, tk.col);
-        if ((opt.flags & MSK_OPT_DEBUG))
+        if ((opt.flags & MSK_OPT_DEBUG) && opt.debug_type == 'S')
         {
             printf("Stack:");
             stnode *temp = stack;
