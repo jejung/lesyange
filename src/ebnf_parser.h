@@ -89,21 +89,21 @@
 
 #define PRODUCTIONS \
 { \
-(int[]){ACT_GENERATE,NT_XRULE,ACT_SETUP,UNKNOWN},/*0. <grammar> ::= <xrule>;*/\
+(int[]){DOLLAR,ACT_GENERATE,NT_XRULE,ACT_SETUP,UNKNOWN},/*0. <grammar> ::= <xrule>;*/\
 (int[]){NT_XRULE,NT_RULE,UNKNOWN},/*1. <xrule> ::= <rule><xrule>;*/\
 (int[]){UNKNOWN},/*2. <xrule> ::= &;*/\
 (int[]){NT_TERMINATE,NT_XRHS,NT_RHS,DEFINE,NT_LHS,UNKNOWN},/*3. <rule> ::= <lhs>"="<rhs><xrhs><terminate>;*/\
-(int[]){ACT_STOP_NORMAL,TERMINATION_SC,UNKNOWN},/*4. <terminate> ::= ";";*/\
-(int[]){ACT_STOP_ALL,TERMINATION_DOT,UNKNOWN},/*5. <terminate> ::= ".";*/\
-(int[]){ACT_REF_ID,IDENTIFIER,UNKNOWN},/*6. <lhs> ::= identifier;*/\
-(int[]){ACT_DECLARE,IDENTIFIER,UNKNOWN},/*7. <rhs> ::= identifier;*/\
-(int[]){ACT_STORE_TERMINAL,TERMINAL_DQ,UNKNOWN},/*8. <rhs> ::= terminal_dq;*/\
-(int[]){ACT_STORE_TERMINAL,TERMINAL_SQ,UNKNOWN},/*9. <rhs> ::= terminal_sq;*/\
-(int[]){ACT_END_OPTION,CLOSE_OPTION,NT_XRHS,NT_RHS,ACT_START_OPTION,OPEN_OPTION,UNKNOWN},/*10.<rhs> ::= "[" <rhs><xrhs> "]";*/\
-(int[]){ACT_END_REPETITION,CLOSE_REPETITION,NT_XRHS,NT_RHS,ACT_START_REPETITION,OPEN_REPETITION,UNKNOWN},/*11.<rhs> ::= "{" <rhs><xrhs> "}";*/\
-(int[]){ACT_END_GROUP,CLOSE_GROUP,NT_XRHS,NT_RHS,ACT_START_GROUP,OPEN_GROUP,UNKNOWN},/*12.<rhs> ::= "(" <rhs><xrhs> ")";*/\
-(int[]){NT_XRHS,ACT_PUSH_UNION,NT_RHS,UNION,UNKNOWN},/*13.<xrhs> ::= "|"<rhs><xrhs>;*/\
-(int[]){NT_XRHS,ACT_PUSH_CAT,NT_RHS,CAT,UNKNOWN},/*14.<xrhs> ::= "," <rhs><xrhs>;*/\
+(int[]){TERMINATION_SC,ACT_STOP_NORMAL,UNKNOWN},/*4. <terminate> ::= ";";*/\
+(int[]){TERMINATION_DOT,ACT_STOP_ALL,UNKNOWN},/*5. <terminate> ::= ".";*/\
+(int[]){IDENTIFIER,ACT_DECLARE,UNKNOWN},/*6. <lhs> ::= identifier #27;*/\
+(int[]){IDENTIFIER,ACT_REF_ID,UNKNOWN},/*7. <rhs> ::= identifier #32;*/\
+(int[]){TERMINAL_DQ,ACT_STORE_TERMINAL,UNKNOWN},/*8. <rhs> ::= terminal_dq #39;*/\
+(int[]){TERMINAL_SQ,ACT_STORE_TERMINAL,UNKNOWN},/*9. <rhs> ::= terminal_sq #39;*/\
+(int[]){CLOSE_OPTION,ACT_END_OPTION,NT_XRHS,NT_RHS,OPEN_OPTION,ACT_START_OPTION,UNKNOWN},/*10.<rhs> ::= "[" <rhs><xrhs> "]";*/\
+(int[]){CLOSE_REPETITION,ACT_END_REPETITION,NT_XRHS,NT_RHS,ACT_START_REPETITION,OPEN_REPETITION,UNKNOWN},/*11.<rhs> ::= "{" <rhs><xrhs> "}";*/\
+(int[]){CLOSE_GROUP,ACT_END_GROUP,NT_XRHS,NT_RHS,OPEN_GROUP,ACT_START_GROUP,UNKNOWN},/*12.<rhs> ::= "(" <rhs><xrhs> ")";*/\
+(int[]){NT_XRHS,NT_RHS,UNION,ACT_PUSH_UNION,UNKNOWN},/*13.<xrhs> ::= "|"<rhs><xrhs>;*/\
+(int[]){NT_XRHS,NT_RHS,CAT,ACT_PUSH_CAT,UNKNOWN},/*14.<xrhs> ::= "," <rhs><xrhs>;*/\
 (int[]){UNKNOWN}/*15.<xrhs> ::= &;*/\
 }
 

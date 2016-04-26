@@ -268,8 +268,12 @@ void parse_ebnf(OPT_CALL)
     DEBUG_LOG(opt, '*', "Source:\n%s\n", source);
     int *lltable[] = LL_TABLE;
     int *productions[] = PRODUCTIONS;
-    stack_put(DOLLAR);
-    stack_put(NT_GRAMMAR);
+    int *prod = productions[0];
+    while (*prod != UNKNOWN) 
+    {
+        stack_put(*prod);
+        prod++;
+    }
     while (stack != NULL)
     {
         char *pos = source; //keep track of initial point.
@@ -280,7 +284,7 @@ void parse_ebnf(OPT_CALL)
         DEBUG_LOG(opt, 'l', 
             "Lexer: %s(%s) at line %d, col %d", 
                 tk.class, tk.lexeme, tk.line, tk.col);
-        if ((opt.flags & MSK_OPT_DEBUG) && opt.debug_type == 'Y')
+        if ((opt.flags & MSK_OPT_DEBUG))
         {
             printf("Stack:");
             stnode *temp = stack;
@@ -310,7 +314,7 @@ void parse_ebnf(OPT_CALL)
             DEBUG_LOG(opt, 's',
                 "Syntatic: Shift %d -> %d at line %d, col %d", 
                     top, shift, tk.line, tk.col);
-            int *prod = productions[shift];
+            prod = productions[shift];
             while (*prod != UNKNOWN) 
             {
                 stack_put(*prod);
