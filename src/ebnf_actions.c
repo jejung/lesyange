@@ -1,10 +1,15 @@
 #include "ebnf_parser.h"
 #include "lesyange.h"
+#include "code_generation.h"
 #include <stdio.h>
+
+non_terminal_t *non_terminals;
+terminal_t *terminals;
 
 void execute_setup() 
 {
-    
+    non_terminals = NULL;
+    terminals = NULL;
 }
 
 void execute_generate()
