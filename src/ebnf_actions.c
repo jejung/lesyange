@@ -1,10 +1,13 @@
+#include <stdio.h>
+#include <string.h>
 #include "ebnf_parser.h"
 #include "lesyange.h"
 #include "code_generation.h"
-#include <stdio.h>
 
 non_terminal_t *non_terminals;
 terminal_t *terminals;
+
+int item_id = 0;
 
 void execute_setup() 
 {
@@ -17,9 +20,38 @@ void execute_generate()
     
 }
 
+void make_non_terminal(non_terminal_t *data, ebnf_token_t *token)
+{
+    data->id = item_id++;
+    int lex_len = strlen(token->lexeme) + 1;
+    data->name = malloc(lex_len * sizeof(char));
+    strcpy(data->name, token->lexeme);
+    data->next = NULL;
+}
+
 void execute_declare(ebnf_token_t *token) 
 {
-    
+    if (non_terminals == NULL)
+    {
+        non_terminals = malloc(sizeof(non_terminal_t));
+        make_non_terminal(non_terminals, token);
+    } else 
+    {
+        non_terminal_t *temp = non_terminals;
+        while (temp->next != NULL)
+        {
+            if (strcmp(temp->name, token->lexeme) == 0)
+            {
+                UNEXPECTED_ERROR(ERROR_IDENTIFIER_REDECLARED, 
+                    "The non terminal %s at line %d, col %d was already declared.", 
+                    temp->name, token->line, token->col);
+            }
+            temp = temp->next;
+        }
+        non_terminal_t *newnode = malloc(sizeof(non_terminal_t));
+        make_non_terminal(newnode, token);
+        temp->next = newnode;
+    }
 }
 
 void execute_stop_all()
