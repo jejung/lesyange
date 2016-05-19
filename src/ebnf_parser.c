@@ -78,7 +78,7 @@ void next_identifier(ebnf_token_t *tk)
     }
 }
 
-void next_comment(ebnf_token_t *tk) 
+void next_comment(OPT_CALL, ebnf_token_t *tk) 
 {
     TK_SETID(tk, COMMENT);
     char last = '\0';
@@ -96,22 +96,22 @@ void next_comment(ebnf_token_t *tk)
         last = *source;
         source++;
     }
-    UNEXPECTED_ERROR(ERROR_UNTERMINATED_COMMENT, 
+    UNEXPECTED_ERROR(opt, ERROR_UNTERMINATED_COMMENT, 
         "The comment at line %d, col %d was not correctly closed", 
         tk->line, tk->col);
 }
 
-void next_group_or_comment(ebnf_token_t *tk) 
+void next_group_or_comment(OPT_CALL, ebnf_token_t *tk) 
 {
     source++;
     char c = *source;
     if (c == '\0') 
     {
-        UNEXPECTED_ERROR(ERROR_UNEXPECTED_EOF, 
+        UNEXPECTED_ERROR(opt, ERROR_UNEXPECTED_EOF, 
             "Unexpected eof at line %d, col %d", line, col);
     } else if (c == '*') 
     {
-        next_comment(tk);
+        next_comment(opt, tk);
     } else 
     {
         source--;
@@ -119,7 +119,7 @@ void next_group_or_comment(ebnf_token_t *tk)
     }
 }
 
-void next_terminal(const char close, ebnf_token_t *tk) 
+void next_terminal(OPT_CALL, const char close, ebnf_token_t *tk) 
 {
     col++;
     source++;
@@ -136,11 +136,11 @@ void next_terminal(const char close, ebnf_token_t *tk)
         source++;
         col++;
     }
-    UNEXPECTED_ERROR(ERROR_UNTERMINATED_LITERAL, 
+    UNEXPECTED_ERROR(opt, ERROR_UNTERMINATED_LITERAL, 
         "The literal at line %d, col %d was not correctly closed", tk->line, tk->col);
 }
 
-void next_token(ebnf_token_t *tk) 
+void next_token(OPT_CALL, ebnf_token_t *tk) 
 {
     TK_SETID(tk, UNKNOWN);
     char *start = source;
@@ -189,7 +189,7 @@ void next_token(ebnf_token_t *tk)
             TK_SETID(tk, CLOSE_REPETITION);
             break;
         } else if (*source == '(') {
-            next_group_or_comment(tk);
+            next_group_or_comment(opt, tk);
             if (tk->id != COMMENT) 
             {
                 break;
@@ -199,18 +199,18 @@ void next_token(ebnf_token_t *tk)
             break;
         } else if (*source == '\"') {
             TK_SETID(tk, TERMINAL_DQ);
-            next_terminal('\"', tk); 
+            next_terminal(opt, '\"', tk); 
             break;
         } else if (*source == '\'') {
             TK_SETID(tk, TERMINAL_SQ);
-            next_terminal('\'', tk);
+            next_terminal(opt, '\'', tk);
             break;
         } else if (*source == '<') {
             next_identifier(tk);
             source++;
             col++;
             if (*source != '>')
-                UNEXPECTED_ERROR(ERROR_UNEXPECTED_CHAR, 
+                UNEXPECTED_ERROR(opt, ERROR_UNEXPECTED_CHAR, 
                   "Expecting '<' but found '%c' at line %d, col %d", *source, line, col);
             break;
         } else if (*source == '-') {
@@ -248,18 +248,18 @@ void parse_ebnf(OPT_CALL)
     FILE *fp = fopen(opt.ebnf_file, "r");
     if (fp == NULL) 
     {   
-        UNEXPECTED_ERROR(ERROR_OPENING_FILE, "%s\n", opt.ebnf_file);
+        UNEXPECTED_ERROR(opt, ERROR_OPENING_FILE, "%s\n", opt.ebnf_file);
     }    
     source = fcat(fp);
     if (source == NULL)
     {
         if (ferror(fp)) 
         {
-            UNEXPECTED_ERROR(ERROR_READING_FILE, 
+            UNEXPECTED_ERROR(opt, ERROR_READING_FILE, 
                 "Error reading the file %s\n", opt.ebnf_file);    
         } else
         {
-            UNEXPECTED_ERROR(ERROR_NOT_ENOUGH_MEMORY, 
+            UNEXPECTED_ERROR(opt, ERROR_NOT_ENOUGH_MEMORY, 
                "Insufficient memory to store the file contents: %s\n", 
                opt.ebnf_file);
         }
@@ -280,7 +280,7 @@ void parse_ebnf(OPT_CALL)
         ebnf_token_t tk;
         tk.class = NULL;
         tk.lexeme = NULL;
-        next_token(&tk);
+        next_token(opt, &tk);
         DEBUG_LOG(opt, 'l', 
             "Lexer: %s(%s) at line %d, col %d", 
                 tk.class, tk.lexeme, tk.line, tk.col);
@@ -307,7 +307,7 @@ void parse_ebnf(OPT_CALL)
             int shift = lltable[top-FIRST_NT][tk.id];
             if (shift == -1) 
             {
-                UNEXPECTED_ERROR(ERROR_UNEXPECTED_TOKEN, 
+                UNEXPECTED_ERROR(opt, ERROR_UNEXPECTED_TOKEN, 
                      "Unexpected token %s(%s) at line %d, col %d", 
                         tk.class, tk.lexeme, tk.line, tk.col);
             }

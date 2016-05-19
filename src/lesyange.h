@@ -29,17 +29,22 @@
 
 #define OPT_CALL options_t opt
 
-#define UNEXPECTED_ERROR(macrocode, ...) \
-    do { printf("Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
-        printf(__VA_ARGS__); \
-       exit(macrocode); \
-    } while(0);
-
 #define MSK_OPT_HELP 0x01
 #define MSK_OPT_VERSION 0x02
 #define MSK_OPT_DEBUG 0x04
     
-#define DEBUG_LOG(opt, type, ...) if ((opt.flags & MSK_OPT_DEBUG) && (type == '*' || opt.debug_type == '*' || type == opt.debug_type)){ printf(__VA_ARGS__); printf("\n"); }
+#define DEBUG_LOG(opt, type, ...) \
+    if ((opt.flags & MSK_OPT_DEBUG) && (type == '*' || opt.debug_type == '*' || type == opt.debug_type))\
+    { printf(__VA_ARGS__); printf("\n"); }
+
+#define UNEXPECTED_ERROR(opt, macrocode, ...) \
+    do { \
+        DEBUG_LOG(opt, '*', "Error (%s) in %s, line %d:\n", #macrocode, __FILE__, __LINE__);  \
+        printf(__VA_ARGS__); \
+        printf("\n"); \
+       exit(macrocode); \
+    } while(0);
+
 
 typedef struct {
 	char *ebnf_file;
