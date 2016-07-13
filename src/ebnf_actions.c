@@ -33,15 +33,21 @@ void make_non_terminal(non_terminal_t *data, ebnf_token_t *token)
 
 void execute_declare(OPT_CALL, ebnf_token_t *token) 
 {
+    DEBUG_LOG(opt, 'a', "Declaring %s", token->lexeme);
     if (non_terminals == NULL)
     {
         non_terminals = malloc(sizeof(non_terminal_t));
+        if (non_terminals == NULL)
+        {
+            UNEXPECTED_ERROR(opt, ERROR_NOT_ENOUGH_MEMORY,
+                "Not enough memory for operation");
+        }
         make_non_terminal(non_terminals, token);
         nt_created = non_terminals;
     } else 
     {
         non_terminal_t *temp = non_terminals;
-        while (temp->next != NULL)
+        while (temp != NULL)
         {
             if (strcmp(temp->name, token->lexeme) == 0)
             {
