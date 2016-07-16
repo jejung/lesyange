@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     {
 		print_options(opt);
 		parse_ebnf(opt);
-        printf("EBNF file ok.");
+        printf("EBNF file ok.\n");
 	}
 	return 0;
 }

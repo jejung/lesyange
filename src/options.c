@@ -72,6 +72,18 @@ options_t opt_parse_args(int argc, char* argv[])
 
 void print_options(OPT_CALL) 
 {
+    printf("\nlesyange - Lexical and Syntatic Analyzers Generator.\n");
+    printf("Copyright (C) 2016  Jean Jung\n");
+    printf("\n");
+    printf("This program is free software: you can redistribute it and/or modify\n");
+    printf("it under the terms of the GNU General Public License as published by\n");
+    printf("the Free Software Foundation, either version 3 of the License, or\n");
+    printf("(at your option) any later version.\n");
+    printf("\n");
+    printf("This program is distributed in the hope that it will be useful,\n");
+    printf("but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+    printf("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+    printf("GNU General Public License for more details.\n");
 	printf("\nlesyange version %s called with options:\n", VERSION);
 	printf("\tebnf_file: %s\n", opt.ebnf_file);
 	if (opt.flags & MSK_OPT_DEBUG) 

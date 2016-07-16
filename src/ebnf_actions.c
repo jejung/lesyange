@@ -5,16 +5,38 @@
 #include "lesyange.h"
 #include "code_generation.h"
 
-non_terminal_t *non_terminals;
-terminal_t *terminals;
-non_terminal_t *nt_created;
+non_terminal_t *non_terminals = NULL;
+non_terminal_t *nt_created = NULL;
 
 int item_id = 0;
 
+void free_rule_list(rule_t *list)
+{
+    rule_t *temp = list;
+    while (temp != NULL)
+    {
+        rule_t *old = temp;
+        temp = temp->next;
+        free(old);
+    }
+}
+
+void free_nt_list()
+{
+    non_terminal_t *temp = non_terminals;
+    while (temp != NULL)
+    {
+        free_rule_list(temp->rules);
+        non_terminal_t *old = temp;
+        temp = temp->next;
+        free(old);
+    }
+}
+
 void execute_setup() 
 {
+    free_nt_list();
     non_terminals = NULL;
-    terminals = NULL;
 }
 
 void execute_generate(OPT_CALL)
@@ -29,11 +51,11 @@ void make_non_terminal(non_terminal_t *data, ebnf_token_t *token)
     data->name = malloc(lex_len * sizeof(char));
     strcpy(data->name, token->lexeme);
     data->next = NULL;
+    data->rules = NULL;
 }
 
 void execute_declare(OPT_CALL, ebnf_token_t *token) 
 {
-    DEBUG_LOG(opt, 'a', "Declaring %s", token->lexeme);
     if (non_terminals == NULL)
     {
         non_terminals = malloc(sizeof(non_terminal_t));
@@ -47,6 +69,7 @@ void execute_declare(OPT_CALL, ebnf_token_t *token)
     } else 
     {
         non_terminal_t *temp = non_terminals;
+        non_terminal_t *last = temp;
         while (temp != NULL)
         {
             if (strcmp(temp->name, token->lexeme) == 0)
@@ -55,6 +78,7 @@ void execute_declare(OPT_CALL, ebnf_token_t *token)
                     "The non terminal %s at line %d, col %d was already declared.", 
                     temp->name, token->line, token->col);
             }
+            last = temp;
             temp = temp->next;
         }
         non_terminal_t *newnode = malloc(sizeof(non_terminal_t));
@@ -64,7 +88,7 @@ void execute_declare(OPT_CALL, ebnf_token_t *token)
                 "Not enough memory for operation");
         }
         make_non_terminal(newnode, token);
-        temp->next = newnode;
+        last->next = newnode;
         nt_created = newnode;
     }
 }
@@ -124,9 +148,40 @@ void execute_end_group(OPT_CALL)
     
 }
 
+void make_rule_terminal(OPT_CALL, rule_t *rule, ebnf_token_t *token)
+{
+    rule->type = RULE_TYPE_STR;
+    size_t lex_len = strlen(token->lexeme) - 1;
+    rule->value.str = malloc(lex_len * sizeof(char));
+    char *lex = token->lexeme + 1;
+    char *str = rule->value.str;
+    while (*lex)
+    {
+        *str = *lex;
+        str++; lex++; 
+    }
+    rule->value.str[lex_len-1] = '\0';
+    rule->next = NULL;
+}
+
 void execute_store_terminal(OPT_CALL, ebnf_token_t *token)
 {
-    
+    rule_t *rule = malloc(sizeof(rule_t));
+    make_rule_terminal(opt, rule, token);
+    if (nt_created->rules == NULL)
+    {
+        nt_created->rules = rule;
+    } else 
+    {
+        rule_t *temp = nt_created->rules;
+        rule_t *old = temp;
+        while (temp != NULL)
+        {
+            old = temp;
+            temp = temp->next;  
+        }
+        old->next = rule;
+    }
 }
 
 void execute_ebnf_action(OPT_CALL, int action, ebnf_token_t *token)
